@@ -9,7 +9,9 @@
 namespace App\Tools;
 
 use App\Models\Account;
+use App\Models\Moment;
 use App\Models\Person;
+use App\User;
 use Illuminate\Support\Facades\Auth;
 
 /**
@@ -21,11 +23,29 @@ class PAManager
 {
 
     /**
+     * 检查Person是否为null、User和Person之间的从属关系
+     * @param User $user UserModel
+     * @param $per Person Model
+     * @return array['suc' => boolean, 'errMsg'=>'xx']
+     *
+     */
+    public static function checkRelation(User $user, $per)
+    {
+        if($per == null) {
+            return ['suc' => false, 'errMsg' => '找不到该关注！'];
+        }
+        if($per->user != $user){
+            return ['suc' => false, 'errMsg'=>'参数非法 #1'];
+        }
+        return ['suc' => 'true'];
+    }
+
+    /**
      * 更新或添加Person
      * @param $arrPer = ['nickname'=>'xxx', 'email'=>'xxx']
-     * @param $arrOJ = [ 'HDU' => 'HDUusername', ...]
-     * @param $per_id=0 (已验证合法)
-     * @return state
+     * @param $arrOJ = [ 'HDU' => 'HDUsername', ...]
+     * @param $per_id = 0 (未验证合法)
+     * @return array['suc' => bool, 'errMsg' = > 'xxx']
      */
     public static function update($arrPer, $arrOJ, $per_id=0)
     {
@@ -38,6 +58,12 @@ class PAManager
             $user->persons()->save($per);
         }else{
             $per = Person::find($per_id);
+
+            $checkRes = PAManager::checkRelation($user, $per);
+            if(!$checkRes['suc']){
+                return $checkRes;
+            }
+
             $per->fill($arrPer);
             $per->save();
         }
@@ -59,6 +85,7 @@ class PAManager
                     'oj' => $oj,
                     'username' => $username,
                 ]);
+
                 $per->accounts()->attach($acc);
             }
         }
@@ -69,6 +96,26 @@ class PAManager
                 $acc->delete();
             }
         }
+
         return ['suc'=>true];
+    }
+
+    public static function delete($id)
+    {
+        $user = Auth::user();
+        $per = Person::find($id);
+
+        $checkRes = PAManager::checkRelation($user, $per);
+        if(!$checkRes['suc']){
+            return $checkRes;
+        }
+
+        $per->user()->dissociate($user);
+        foreach ($per->accounts as $acc){
+            $per->detachAccount($acc);
+        }
+        $per->delete();
+
+        return ['suc' => true];
     }
 }

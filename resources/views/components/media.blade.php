@@ -6,8 +6,13 @@
             </a>
         </div>
         <div class="media-body">
-            <h4 class="media-heading">{{$title}}<span style="color:grey">({{$grey}})</span></h4>
+            <h4 class="media-heading">{{$title}}<span style="color:grey">({{$grey or ''}})</span></h4>
             {{$slot}}
         </div>
+        @if(isset($right))
+        <div class="media-right">
+            {{$right}}
+        </div>
+        @endif
     </li>
 </ul>

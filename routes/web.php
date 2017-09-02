@@ -34,12 +34,16 @@ Route::any('/concern/add', [
 Route::any('/concern/modify/{id}', [
    'as' => 'concern-modify',
    'uses' => 'ConcernController@modify'
-]);
+])->where('id', '[0-9]+');
 
-Route::any('/concern/update', [
+Route::post('/concern/update', [
     'as' => 'concern-update',
     'uses' => 'ConcernController@update'
 ]);
+
+Route::get('/concern/delete/{id}', [
+   'uses' => 'ConcernController@delete',
+])->where('id', '[0-9]+');
 
 Auth::routes();
 

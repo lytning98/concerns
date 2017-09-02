@@ -27,4 +27,19 @@ class Person extends Model
         return $this->belongsTo('App\User');
     }
 
+    //custom methods in model
+    public function __call($method, $args)
+    {
+        //删除与account的关联
+        if($method == 'detachAccount')
+        {
+            $acc = $args[0];
+            $this->accounts()->detach($acc);
+            $acc->selfCheck();
+        }
+        else{
+            return parent::__call($method, $args);
+        }
+    }
+
 }

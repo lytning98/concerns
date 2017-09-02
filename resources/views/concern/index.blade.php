@@ -11,24 +11,38 @@
                     @slot('title')
                         我的关注
                         <button class="btn btn-default" onclick="window.location.href='{{route('concern-add')}}'">
-                            <i class="fa fa-plus"></i>
+                            <i class="fa fa-plus"><z> 添加</z></i>
                         </button>
                     @endslot
+
+                    @if(session('msg'))
+                        @component('components/alert')
+                            {{session('msg')}}
+                        @endcomponent
+                    @endif
 
                     @forelse($data as $per)
                         @component('components/media')
                             @slot('imgsrc', \App\Tools\Gravatar::getURLbyPerson($per, 60))
                             @slot('title')
-                                <a href="{{url('concern/modify/'.$per->id)}}">{{$per->nickname}}</a>
+                                <a href="#">{{$per->nickname}}</a>
                             @endslot
-                            @slot('grey', $per->email)
-                            @forelse($per->accounts as $acc)
-                                {{$acc->oj}}账号[{{$acc->username}}]
+                            @slot('grey', $per->email==null?'No E-Mail':$per->email)
+                            @slot('right')
+                                <a class="btn btn-default btn-lg" href="{{url('concern/modify/'.$per->id)}}">
+                                    <span class="glyphicon glyphicon-pencil"><z> 编辑</z></span>
+                                </a>
+                            @endslot
+                            @forelse($per->accounts->groupBy('oj')->toArray() as $oj=>$accs)
+                                {{$oj}}账号
+                                @foreach($accs as $acc)
+                                    [{{$acc['username']}}]
+                                @endforeach
                                 @if(!$loop->last)
                                     ，
                                 @endif
                             @empty
-                                还没有绑定OJ账号
+                                还没有设置OJ账号
                             @endforelse
                         @endcomponent
                     @empty
@@ -36,14 +50,25 @@
                     @endforelse
 
                     <hr/>
-                    {!! $data->render() !!}
+                    @if($count<=15)
+                        {{--仅有一页时Paginator不显示页码 实在丑 手动补之--}}
+                        <ul class="pagination">
+                            <li class="disabled"><span>&laquo;</span></li>
+                            <li class="active"><a href="#">1</a></li>
+                            <li class="disabled"><span>&raquo;</span></li>
+                        </ul>
+                    @else
+                        {!! $data->render() !!}
+                    @endif
                     <br/>
                 @endcomponent
             </div>
             <div class="col-md-4">
                 @component('components/widget')
                     @slot('title', '统计')
-                    共关注了{{count($data)}}人
+                    <p>共关注了{{count($data)}}人</p>
+                    {{--may affect efficiency--}}
+                    <p>好友动态{{\App\Tools\MmtManager::getMomentsCount(Auth::user())}}条</p>
                 @endcomponent
 
             </div>

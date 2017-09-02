@@ -9,6 +9,7 @@
 namespace App\Http\Controllers;
 
 
+use App\Tools\MmtManager;
 use Illuminate\Database\Eloquent\Relations\Pivot;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Http\Request;
@@ -65,32 +66,15 @@ class IndexController extends Controller
             return view('index');
         }else
         {
-            $items = 0;
             $ITEM_PER_PAGE = 2;
             $cur = (int)$request->input('page');
             if($cur == 0)   $cur = 1;
 
             $path = Paginator::resolveCurrentPath();
-            $data = [];
 
-            foreach(Auth::user()->persons as $per)
-            {
-                foreach($per->accounts as $acc)
-                {
-
-                    $moments = $acc->moments;
-                    $items += count($moments);
-                    foreach ($moments as $wtm) {
-                        array_push($data, ['moment' => $wtm, 'parent' => $per]);
-                    }
-                }
-            }
-
-            $col = collect($data);
-            $col = $col->sortByDesc(function($product, $key){
-                return $product['moment']->created_at;
-            });
-            $data = $col->values()->all();
+            $res = MmtManager::getMoments(Auth::user());
+            $items = $res['count'];
+            $data = $res['data'];
 
             for($i = 1; $i < $cur; $i++)
             {

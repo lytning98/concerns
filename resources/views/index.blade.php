@@ -30,7 +30,7 @@
                             @endphp
                             @component('components/media')
                                 @slot('title', $nickname)
-                                @slot('grey', $data['parent']->email)
+                                @slot('grey', $data['username'] . '@' . $moment->oj)
                                 @slot('imgsrc', \App\Tools\Gravatar::getURLbyPerson($data['parent'], 45))
                                 @if($moment->event == 'AC')
                                     <span class="label label-success">Accepted</span> {{$nickname}} solved {{$moment->problem}}.
@@ -53,7 +53,7 @@
                 </div>
                 <div class="col-md-4">
                     @component('components/widget')
-                        @slot('title', '提示')
+                        @slot('title', '公告')
                         数据抓取周期为半小时。
                     @endcomponent
                 </div>
