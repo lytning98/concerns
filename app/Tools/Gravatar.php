@@ -16,7 +16,7 @@ class Gravatar
 
     public static function getURLbyEmail($email, $size)
     {
-        return "https://www.gravatar.com/avatar/" . md5( strtolower( trim( $email ) ) ) . "?r=g&s=" . $size;
+        return "https://cn.gravatar.com/avatar/" . md5( strtolower( trim( $email ) ) ) . "?r=g&s=" . $size;
     }
 
     public static function getURLbyUser(User $user, $size)

@@ -13,6 +13,7 @@ use App\Models\Moment;
 use App\Models\Person;
 use App\User;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 /**
  * Class PAManager
@@ -74,26 +75,53 @@ class PAManager
             $per->accounts()->detach($acc);
         }
 
-        //attach new accounts
+        //create and attach new accounts
         foreach ($arrOJ as $oj=>$raw_usernames)
         {
             if($raw_usernames == '')    continue;
             $usernames = explode('|', $raw_usernames);
             foreach ($usernames as $username)
             {
-                $acc = Account::firstOrCreate($info = [
+                $acc = Account::where($info = [
                     'oj' => $oj,
                     'username' => $username,
-                ]);
+                ])->get();
 
-                $per->accounts()->attach($acc);
+                if($acc->isEmpty())
+                {
+                    $acc = Account::create($info = [
+                        'oj' => $oj,
+                        'username' => $username,
+                    ]);
+                    //re-bind un-binded moment to account
+                    $mmts = Moment::withTrashed()->where($info)->get();
+                    foreach ($mmts as $mmt){
+                        if($mmt->account != $acc){
+                            $mmt->restore();
+                            $acc->moments()->save($mmt);
+                        }
+                    }
+
+                    $per->accounts()->attach($acc);
+
+                    //craw latest AC event
+                    $craw = new Crawler();
+                    $data = $craw->crawlACByAccount($acc, 5);
+                    if($data['suc']){
+                        foreach ($data['data'] as $mmtdata){
+                            $ins = MmtManager::create($mmtdata);
+                        }
+                    }
+                }else{
+                    $per->accounts()->attach($acc);
+                }
             }
         }
 
         //delete un-attached accounts
         foreach ($old_accounts as $acc){
             if($acc->persons->isEmpty()){
-                $acc->delete();
+                $acc->remove();
             }
         }
 

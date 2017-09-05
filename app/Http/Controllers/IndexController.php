@@ -10,11 +10,12 @@ namespace App\Http\Controllers;
 
 
 use App\Tools\MmtManager;
+use App\Tools\SysManager;
 use Illuminate\Database\Eloquent\Relations\Pivot;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Http\Request;
-use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Pagination\Paginator;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Auth;
 
@@ -66,27 +67,16 @@ class IndexController extends Controller
             return view('index');
         }else
         {
-            $ITEM_PER_PAGE = 2;
             $cur = (int)$request->input('page');
             if($cur == 0)   $cur = 1;
 
             $path = Paginator::resolveCurrentPath();
-
             $res = MmtManager::getMoments(Auth::user());
             $items = $res['count'];
             $data = $res['data'];
+            $datalist = MmtManager::getPaginatedData($data, $items, 10, $cur, $path);
 
-            for($i = 1; $i < $cur; $i++)
-            {
-                $data = array_slice($data, $ITEM_PER_PAGE);
-            }
-            $infoList['ITEM_PER_PAGE'] = $ITEM_PER_PAGE;
-            $infoList['dataset'] = $data;
-            $infoList['paginator'] = new LengthAwarePaginator($data, $items, $ITEM_PER_PAGE, $cur, [
-                'path' => $path,
-                'pageName' => 'page',
-            ]);
-            return view('index', $infoList);
+            return view('index', $datalist);
         }
     }
 }

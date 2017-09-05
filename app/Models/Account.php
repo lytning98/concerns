@@ -9,7 +9,10 @@
 namespace App\Models;
 
 
+use App\Tools\MmtManager;
+use App\Tools\SysManager;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Log;
 
 class Account extends Model
 {
@@ -34,12 +37,16 @@ class Account extends Model
         if($method == 'selfCheck')
         {
             if($this->persons->isEmpty()){
-                //清理无关联的动态 [warning: 可能引起重复抓取]
-                foreach ($this->moments as $mom){
-//                    $mom->delete();
-                }
-                $this->delete();
+                $this->remove();
             }
+        }
+        else if($method == 'remove')
+        {
+            //清理无关联的动态 (软删除)
+            foreach ($this->moments as $mmt){
+                $mmt->delete();
+            }
+            $this->delete();
         }
         else{
             return parent::__call($method, $args);

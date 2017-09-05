@@ -17,6 +17,7 @@
 
                     @if(session('msg'))
                         @component('components/alert')
+                            @slot('style', session('msgStyle')==''?'success':session('msgStyle'))
                             {{session('msg')}}
                         @endcomponent
                     @endif
@@ -24,12 +25,14 @@
                     @forelse($data as $per)
                         @component('components/media')
                             @slot('imgsrc', \App\Tools\Gravatar::getURLbyPerson($per, 60))
+                            @slot('imghref', route('profile', ['id'=>$per->id]))
                             @slot('title')
-                                <a href="#">{{$per->nickname}}</a>
+                                <a href="{{route('profile', ['id'=>$per->id])}}">{{$per->nickname}}</a>
                             @endslot
-                            @slot('grey', $per->email==null?'No E-Mail':$per->email)
+                            @slot('rawHTML', true)
+                            @slot('grey', $per->getEmailHTML())
                             @slot('right')
-                                <a class="btn btn-default btn-lg" href="{{url('concern/modify/'.$per->id)}}">
+                                <a class="btn btn-default btn-lg" href="{{route('concern-modify', ['id'=>$per->id])}}">
                                     <span class="glyphicon glyphicon-pencil"><z> 编辑</z></span>
                                 </a>
                             @endslot
@@ -50,7 +53,7 @@
                     @endforelse
 
                     <hr/>
-                    @if($count<=15)
+                    @if($count<=$ITEM_PER_PAGE)
                         {{--仅有一页时Paginator不显示页码 实在丑 手动补之--}}
                         <ul class="pagination">
                             <li class="disabled"><span>&laquo;</span></li>

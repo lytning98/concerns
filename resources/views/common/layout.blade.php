@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>{{ env('APP_NAME') }} - @yield('title', 'default')</title>
+    <title>@yield('title', 'default') - {{ env('APP_NAME') }}</title>
     {{--<link href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" rel="stylesheet">--}}
     <link href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
     <link href="{{ asset('css/index.css') }}" rel="stylesheet">
@@ -26,7 +26,7 @@
                 {{-- fecth gravatar logo --}}
                 @if(Auth::check())
                     <a class="branding" href="#" title="{{Auth::user()->name}}">
-                        <img src="{{\App\Tools\Gravatar::getURLbyUser(Auth::user(), 100)}}" alt="HEAD_PIC" style="border-radius:20px;">
+                        <img src="{{\App\Tools\Gravatar::getURLbyUser(Auth::user(), 100)}}" alt="HEAD_PIC" style="border-radius:20px;"/>
                     </a>
                 @else
                     <a class="branding" href="#" title="{{env('APP_NAME')}}"><img src="{{asset('image/logo.png')}}" alt="{{env('APP_NAME')}}"></a>
@@ -54,7 +54,6 @@
                             <li class="@yield('nav-concerns')" role="presentation"><a href="{{route('concern')}}">我的关注</a></li>
                             <li  role="presentation" class="dropdown"><a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">{{Auth::user()->name}} <span class="caret"></span></a>
                                 <ul class="dropdown-menu">
-                                    <li><a href="#">个人资料</a></li>
                                     <li><a href="{{route('logout')}}">退出登录</a></li>
                                 </ul>
                             </li>

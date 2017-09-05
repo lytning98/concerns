@@ -4,10 +4,11 @@ namespace App\Http\Controllers;
 
 
 use App\Models\Person;
+use App\Tools\MmtManager;
 use App\Tools\PAManager;
 use Illuminate\Http\Request;
+use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Auth;
-use Mockery\Exception;
 
 class ConcernController extends Controller
 {
@@ -31,8 +32,7 @@ class ConcernController extends Controller
         foreach ($oj as $cur){
             array_push($data, ['attr' => "OJ[$cur]", 'attr_dot'=>"OJ.$cur", 'name' => $cur . '用户名', 'ori'=>'']);
         }
-        if($per)
-        {
+        if($per){
             foreach ($per->accounts as $acc) {
                 for ($i = 0; $i < count($data); $i++) {
                     if ($data[$i]['attr'] == "OJ[$acc->oj]")
@@ -52,16 +52,16 @@ class ConcernController extends Controller
     public function index()
     {
         $user = Auth::user();
-        $concerns = $user->persons()->orderBy('created_at', 'desc');
+        $concerns = $user->persons()->orderBy('created_at');
         $data['count'] = $concerns->count();
-        $concerns = $concerns->paginate(15);
+        $concerns = $concerns->paginate(8);
+        $data['ITEM_PER_PAGE'] = 8;
         $data['data'] = $concerns;
         return view('concern.index', $data);
     }
 
     public function add()
     {
-        $data = [];
         $data['title'] = '添加关注';
         $data['data'] = $this->getFormData();
         return view('concern.modify', $data);
@@ -69,7 +69,6 @@ class ConcernController extends Controller
 
     public function modify($id)
     {
-        $data = [];
         $data['title'] = '修改关注';
         $per = Person::find($id);
         $checkRes = PAManager::checkRelation(Auth::user(), $per);
@@ -120,5 +119,26 @@ class ConcernController extends Controller
             $data['errMsg'] = $res['errMsg'];
             return view('concern.modify', $data);
         }
+    }
+
+    public function profile($id, Request $req)
+    {
+        $user = Auth::user();
+        $per = Person::find($id);
+        $checkRes = PAManager::checkRelation($user, $per);
+        if(!$checkRes['suc']){
+            return redirect('concern')->with(['msg'=>$checkRes['errMsg'], 'msgStyle'=>'danger']);
+        }
+
+        $res = MmtManager::getMomentsByPerson($per, true);
+        $count = $res['count'];
+        $mmts = $res['data'];
+        $path = Paginator::resolveCurrentPath();
+        $cur = (int)$req->input('page');
+
+        $data = MmtManager::getPaginatedData($mmts, $count, 10, $cur, $path);
+        $data['per'] = $per;
+
+        return view('concern.profile', $data);
     }
 }
