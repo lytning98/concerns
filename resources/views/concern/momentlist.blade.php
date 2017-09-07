@@ -2,6 +2,7 @@
     @php
         $moment = $data['moment'];
         $nickname = isset($data['parent'])?($data['parent']->nickname):'';
+        $rating = json_decode($data['moment']->description);
     @endphp
     @component('components/media')
         @if($moment->event != 'CONTEST_FLAG')
@@ -15,9 +16,14 @@
             @if($moment->event == 'AC')
                 {{--<span class="label label-success">Accepted</span>--}} {{$nickname}} AC了 <a target="_blank" href="{{$moment->url or '#'}}">{{$moment->problem}}</a><br/> {!! $moment->description or ''!!}
             @else
-                <span class="label label-warning">Rating</span> {{$nickname}}'s rating changed : {{$moment->description}} in {{$moment->problem}}
+                {{--<span class="label label-warning">Rating</span>--}} {{$nickname}}'s Codeforces rating changed :
+                <strong><span style="color:{{\App\Tools\SysManager::ratingColor($rating->old)}}">{{$rating->old}}</span></strong>
+                    ->
+                <strong><span style="color:{{\App\Tools\SysManager::ratingColor($rating->new)}}">{{$rating->new}}</span></strong>
+                <br/>in <a href="{{$moment->url}}" target="_blank">{{$moment->problem}}</a>
             @endif
             <br/>
+            <span style="color:grey">{{$moment->time}}</span>
         @else
             @php
                 $contestants = $data['contestants']['data'];
@@ -63,9 +69,9 @@
                 您的关注中无人参加这场比赛。
                 <br/>
             @endif
+            <span style="color:grey">{{$moment->time}} (比赛开始时间)</span>
         @endif
 
-        <span style="color:grey">{{$moment->time}}</span>
     @endcomponent
     <hr />
     @break($loop->iteration == $ITEM_PER_PAGE)

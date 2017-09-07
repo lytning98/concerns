@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -9,7 +9,7 @@
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     {{----}}
-    <link rel="stylesheet" href="//cdn.bootcss.com/font-awesome/4.3.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css">
     {{----}}
     <script>
         window.Laravel = {!! json_encode([
@@ -29,7 +29,7 @@
                         <img src="{{\App\Tools\Gravatar::getURLbyUser(Auth::user(), 100)}}" alt="HEAD_PIC" style="border-radius:20px;"/>
                     </a>
                 @else
-                    <a class="branding" href="#" title="{{env('APP_NAME')}}"><img src="{{asset('image/logo.png')}}" alt="{{env('APP_NAME')}}"></a>
+                    <a class="branding" href="#" title="{{env('APP_NAME')}}"><img src="{{asset('image/logo.png')}}" alt="{{env('APP_NAME')}}" style="border-radius:20px;"/></a>
                 @endif
             </div>
         </div>
@@ -52,7 +52,10 @@
 
                         @if(Auth::check())
                             <li class="@yield('nav-concerns')" role="presentation"><a href="{{route('concern')}}">我的关注</a></li>
-                            <li  role="presentation" class="dropdown"><a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">{{Auth::user()->name}} <span class="caret"></span></a>
+                            <li  role="presentation" class="dropdown">
+                                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                                    {{Auth::user()->name}} <span class="caret"></span>
+                                </a>
                                 <ul class="dropdown-menu">
                                     <li><a href="{{route('logout')}}">退出登录</a></li>
                                 </ul>
@@ -62,7 +65,7 @@
                             <li class="@yield('nav-register')" role="presentation"><a href="{{url('register')}}">注册</a></li>
                         @endif
 
-                        <li class="@yield('nav-about')" role="presentation"><a href="#">关于</a></li>
+                        <li class="@yield('nav-about')" role="presentation"><a href="{{route('about')}}">关于</a></li>
                     </ul>
                 </div>
             </div>
@@ -74,13 +77,16 @@
     @yield('content')
 
     <footer class="post-footer clearfix">
-        <div class="pull-right tag-list">
-            <i class="fa fa-folder-open-o"></i>
-            <p>Platform Version : xxx<br/>
-                Server Time : {{time()}}<br/>
-                Copyright information</p>
+        <br/>
+        <div class="tag-list" align="center">
+            <span>Version 0.1</span>
+            <p>
+                <span>Powered by Lytning</span> |
+                <span>2017/9/7</span>
+            </p>
         </div>
     </footer>
+    <br/>
 </div>
 
 <script src="//cdn.bootcss.com/jquery/1.11.3/jquery.min.js"></script>

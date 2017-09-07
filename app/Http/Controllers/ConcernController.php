@@ -98,7 +98,7 @@ class ConcernController extends Controller
 
         $res = PAManager::update($req['Person'], $req['OJ'], $req['modifying']);
         if($res['suc']) {
-            return redirect('concern')->with('msg', '操作成功！');
+            return redirect('concern')->with('msg', '操作成功！新添加的oj账号的数据仍在后台收集，请耐心等待');
         }else{
             $data['title'] = '修改关注';
             $data['hasError'] = true;

@@ -5,6 +5,7 @@ namespace App\Tools;
 use App\Models\Account;
 use App\Models\Moment;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\Log;
 
 /**
  * Class MmtManager
@@ -141,7 +142,7 @@ class MmtManager
         }
 
         $col = collect($data);
-        $col = $col->sortByDesc(function($product, $key){
+        $col = $col->sortBy(function($product, $key){
             return $product['result']->rank;
         });
         $data = $col->values()->all();
@@ -175,17 +176,30 @@ class MmtManager
      */
     public static function create($data)
     {
-        $acc = Account::where($info = [
-           'oj' => $data['oj'],
-           'username' => $data['username'],
-        ])->first();
-        if(!$acc)   return false;
-        $info['problem'] = $data['problem'];
+        $info = [
+          'problem' => $data['problem'],
+          'event' => $data['event'],
+          'oj' => $data['oj'],
+          'username' => $data['username'],
+        ];
         $mmt = Moment::where($info)->get();
         if(!$mmt->isEmpty())    return true;
+
         $mmt = Moment::create($data);
         if(!$mmt)   return false;
-        $acc->moments()->save($mmt);
+
+        if($data['event'] != 'CONTEST_FLAG')
+        {
+            $acc = Account::where([
+               'oj' => $data['oj'],
+               'username' => $data['username'],
+            ])->first();
+            if(!$acc){
+                $mmt->delete();
+                return false;
+            }
+            $acc->moments()->save($mmt);
+        }
         return true;
     }
 }

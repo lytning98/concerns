@@ -58,12 +58,14 @@
                                         document.getElementById('progressBar').style.display='';
                                         document.getElementById('formButtons').style.display='none';
                                     ">
+                                        <i class="fa fa-check"></i>
                                         保存
                                     </button>
                                     @if(isset($id))
                                     <a tabindex="0" class="btn btn-danger" role="button" data-toggle="popover" data-trigger="focus"
                                        data-html="true" title="<z>确认删除?</z>"
                                        data-content="<z><a href='{{route('concern-delete', ['id'=>$id])}}' class='btn btn-danger'>确认</a></z>">
+                                        <i class="fa fa-trash"></i>
                                         删除
                                     </a>
                                     @endif
@@ -71,6 +73,7 @@
                             </div>
                             <div class="progress" id="progressBar" style="display: none">
                                 <div class="progress-bar progress-bar-info progress-bar-striped active" role="progressbar" style="width: 100%">
+                                    <i class="fa fa-spinner fa-spin"></i>
                                     正在抓取初始数据
                                 </div>
                             </div>
@@ -93,7 +96,10 @@
                     </div>
                     <hr/>
                     <div align="center">
-                        <a class="btn btn-default" href="{{route('concern')}}">返回关注列表</a>
+                        <a class="btn btn-default" href="{{route('concern')}}">
+                            <i class="fa fa-reply"></i>
+                            返回关注列表
+                        </a>
                     </div>
                 @endcomponent
             </div>

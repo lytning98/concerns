@@ -9,6 +9,7 @@
 namespace App\Models;
 
 
+use App\Tools\SysManager;
 use Illuminate\Database\Eloquent\Model;
 
 class Person extends Model
@@ -48,11 +49,7 @@ class Person extends Model
         {
             $raw = $this->email;
             if($raw == 'No E-Mail') return $raw;
-            $arr = explode('.', $raw);
-            $arr = array_merge(explode('@', $arr[0]), [$arr[1]]);
-            $ret = $arr[0] . '<spci>@nomail.com' . '<a href="mailto:no_spam@hhhh.com">contact</a></spci><span>@</span>' . $arr[1] .
-                '.<spci>simple@tricks.com</spci><span>' . $arr[2] . '</span><div style="display:none">trap</div><spci>@hhh.com</spci>';
-            return $ret;
+            return SysManager::emailObfuscationHTML($raw);
         }
         else{
             return parent::__call($method, $args);

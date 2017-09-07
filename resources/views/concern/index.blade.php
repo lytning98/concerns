@@ -11,7 +11,7 @@
                     @slot('title')
                         我的关注
                         <button class="btn btn-default" onclick="window.location.href='{{route('concern-add')}}'">
-                            <i class="fa fa-plus"><z> 添加</z></i>
+                            <i class="fa fa-user-plus"><z> 添加</z></i>
                         </button>
                     @endslot
 
@@ -68,6 +68,7 @@
             </div>
             <div class="col-md-4">
                 @component('components/widget')
+                    @slot('rawHTML', '<i class="fa fa-users"></i>')
                     @slot('title', '统计')
                     <p>共关注了{{count($data)}}人</p>
                     {{--may affect efficiency--}}

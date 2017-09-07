@@ -33,9 +33,11 @@ class PAManager
     public static function checkRelation(User $user, $per)
     {
         if($per == null) {
+            Log::notice("[Concern not found] user[$user->name] tried to access null person.");
             return ['suc' => false, 'errMsg' => '找不到该关注！'];
         }
         if($per->user != $user){
+            Log::notice("[No Access] user[$user->name] tried to access person not belongs to this user.");
             return ['suc' => false, 'errMsg'=>'参数非法 #1'];
         }
         return ['suc' => 'true'];
@@ -57,6 +59,7 @@ class PAManager
         if($per_id == 0){
             $per = new Person($arrPer);
             $user->persons()->save($per);
+            Log::info("[NEW person] $per->nickname added by [$user->name]");
         }else{
             $per = Person::find($per_id);
 
@@ -80,39 +83,33 @@ class PAManager
         {
             if($raw_usernames == '')    continue;
             $usernames = explode('|', $raw_usernames);
-            foreach ($usernames as $username)
-            {
+            foreach ($usernames as $username) {
                 $acc = Account::where($info = [
                     'oj' => $oj,
                     'username' => $username,
                 ])->get();
 
-                if($acc->isEmpty())
-                {
+                if ($acc->isEmpty()) {
                     $acc = Account::create($info = [
                         'oj' => $oj,
                         'username' => $username,
                     ]);
                     //re-bind un-binded moment to account
                     $mmts = Moment::withTrashed()->where($info)->get();
-                    foreach ($mmts as $mmt){
-                        if($mmt->account != $acc){
+                    foreach ($mmts as $mmt) {
+                        if ($mmt->account != $acc) {
                             $mmt->restore();
                             $acc->moments()->save($mmt);
                         }
                     }
 
                     $per->accounts()->attach($acc);
+                    Log::info("[NEW account] $username @ $oj binded to [$per->nickname] by [$user->name]");
 
-                    //craw latest AC event
-                    $craw = new Crawler();
-                    $data = $craw->crawlACByAccount($acc, 5);
-                    if($data['suc']){
-                        foreach ($data['data'] as $mmtdata){
-                            $ins = MmtManager::create($mmtdata);
-                        }
-                    }
-                }else{
+                    //async request to finish initial data crawling
+                    SysManager::asyncRequest(route('initialCrawl', ['id'=>$acc->id]), 2);
+
+                } else {
                     $per->accounts()->attach($acc);
                 }
             }

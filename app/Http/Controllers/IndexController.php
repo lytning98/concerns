@@ -9,12 +9,14 @@
 namespace App\Http\Controllers;
 
 
+use App\Models\Account;
 use App\Tools\MmtManager;
 use App\Tools\SysManager;
 use Illuminate\Database\Eloquent\Relations\Pivot;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\Paginator;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Auth;
@@ -75,6 +77,7 @@ class IndexController extends Controller
             $items = $res['count'];
             $data = $res['data'];
             $datalist = MmtManager::getPaginatedData($data, $items, 10, $cur, $path);
+            $datalist['acc_count'] = DB::table('accounts')->count();
 
             return view('index', $datalist);
         }
